@@ -1,0 +1,249 @@
+[
+  {
+    "id": "one",
+    "name": "指标运营",
+    "children": [
+      {
+        "id": "kpi",
+        "name": "基本面及KPI",
+        "children": [
+          {
+            "id": "index",
+            "name": "基本面",
+            "url": "/#/kpi/index"
+          },
+          {
+            "id": "market",
+            "name": "KPI-市场大势",
+            "url": "/#/kpi/market"
+          },
+          {
+            "id": "4g",
+            "name": "KPI-4G流量",
+            "url": "/#/kpi/4g"
+          },
+          {
+            "id": "broadband",
+            "name": "KPI-宽带发展",
+            "url": "/#/kpi/broadband"
+          },
+          {
+            "id": "digital",
+            "name": "KPI-数字业务",
+            "url": "/#/kpi/digital"
+          }
+        ]
+      },
+      {
+        "id": "dev",
+        "name": "重点业务",
+        "children": [
+          {
+            "id": "market",
+            "name": "市场大势",
+            "url": "/#/dev/market"
+
+          },
+          {
+            "id": "stockandflow",
+            "name": "存量与流量",
+            "url": "/#/dev/stockandflow"
+          },
+          {
+            "id": "broadband",
+            "name": "有线宽带",
+            "url": "/#/dev/broadband"
+          }
+        ]
+      },
+      {
+        "id": "family",
+        "name": "智慧家庭",
+        "children": [
+          {
+            "id": "index",
+            "name": "整体情况",
+            "url": "/#/family/index"
+          },
+          {
+            "id": "new",
+            "name": "新增发展",
+            "url": "/#/family/new"
+          },
+          {
+            "id": "stock",
+            "name": "存量保有",
+            "url": "/#/family/stock"
+          },
+          {
+            "id": "tv",
+            "name": "宽带电视",
+            "url": "/#/family/tv"
+          },
+          {
+            "id": "resource",
+            "name": "宽带资源",
+            "url": "/#/family/resource"
+          },
+          {
+            "id": "dismantle",
+            "name": "宽带拆机",
+            "url": "/#/family/dismantle"
+          }
+        ]
+      },
+      {
+        "id": "statistic",
+        "name": "综合评价",
+        "children": [
+          {
+            "id": "qr",
+            "name": "二维对标",
+            "url": "/#/statistic/qr"
+          },
+          {
+            "id": "flags",
+            "name": "红黑旗",
+            "url": "/#/statistic/flags"
+          },
+          {
+            "id": "monthly",
+            "name": "月度考核",
+            "url": "/#/statistic/monthly"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "two",
+    "name": "工作视图",
+    "children": [
+      {
+        "id": "sceneManage",
+        "name": "常驻客群",
+        "url": "/sceneoperation/#/scene",
+        "children": []
+      },
+      {
+        "id": "diffuseManage",
+        "name": "漫入客群",
+        "url": "/sceneoperation/#/users",
+        "children": []
+      },
+      {
+        "id": "familyPortrait",
+        "name": "家庭画像",
+        "url": "/family_portraits/#/",
+        "children": []
+      },
+      {
+        "id": "groupManage",
+        "name": "集团客群",
+        "url": "/sceneoperation/#/group",
+        "children": []
+      },
+      {
+        "id": "xiaoYuan",
+        "name": "校园营销",
+        "url": "/xiaoyuan/#/",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "three",
+    "name": "资源分布",
+    "children": [
+      {
+        "id": "broadbandStrategy",
+        "name": "宽带战略地图",
+        "url": "/zhanlue/#/",
+        "children": []
+      },
+      {
+        "id": "place",
+        "name": "渠道门店",
+        "children": [
+          {
+            "id": "index",
+            "name": "门店信息",
+            "url": "/#/place/index"
+          },
+          {
+            "id": "cover",
+            "name": "弱覆盖",
+            "url": "/#/place/cover"
+          },
+          {
+            "id": "count",
+            "name": "业务量",
+            "url": "/#/place/count"
+          }
+        ]
+      },
+      {
+        "id": "business",
+        "name": "政企业务",
+        "children": [
+          {
+            "id": "index",
+            "name": "基本面",
+            "url": "/#/business/index"
+          },
+          {
+            "id": "resource",
+            "name": "全业务资源",
+            "url": "/#/business/resource"
+          },
+          {
+            "id": "gov",
+            "name": "政企专线",
+            "url": "/#/business/gov"
+          },
+          {
+            "id": "tiny",
+            "name": "小微宽带",
+            "url": "/#/business/tiny"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "workspace",
+    "name": "我的工作台",
+    "children": [
+      {
+        "id": "",
+        "name": "五扫摆摊",
+        "path": "/workspace/#/",
+        "children": []
+      },
+      {
+        "id": "branchoffice",
+        "name": "我的分局",
+        "url": "/#/workspace/branchoffice",
+        "children": []
+      },
+      {
+        "id": "mytask",
+        "name": "我的任务",
+        "path": "/workspace/#/mytask",
+        "children": []
+      },
+      {
+        "id": "jianmoqushu",
+        "name": "建模取数",
+        "url": "http://47.99.195.170:8081/#/login",
+        "children": []
+      },
+      {
+        "id": "marketing",
+        "name": "我的任务",
+        "path": "/workspace/#/marketing",
+        "children": []
+      }
+    ]
+  }
+]
