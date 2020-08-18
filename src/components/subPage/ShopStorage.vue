@@ -5,7 +5,16 @@
       <el-select v-model="shopid" placeholder="请选择分店">
         <el-option v-for="(item,index) in options" :key="index" :label="item.storeName" :value="item.id"></el-option>
       </el-select>
-      <el-button style="margin-left:30px;" type="primary"  @click="toAdd()" icon="el-icon-edit-outline">新增库存</el-button>
+      <span style="margin-left:10px;">商品名称:</span>
+      <el-input
+        style="display:inline-block;width:200px;margin-left:10px;"
+        placeholder="请输入内容"
+        prefix-icon="el-icon-search"
+        v-model="goodsName"
+      ></el-input>
+      <!-- goodsName -->
+      <!-- <el-button style="margin-left:30px;" type="primary"  @click="toAdd()" icon="el-icon-edit-outline">新增库存</el-button> -->
+      <el-button style="margin-left:30px;" type="primary"  @click="showInitGoods()" icon="el-icon-edit-outline">初始化商品</el-button>
       <el-button style="margin-left:30px;" type="info"  @click="toInit()" icon="el-icon-s-tools">初始化库存</el-button>
       <el-button style="margin-left:30px;" type="info"  @click="toClear()" icon="el-icon-s-tools">清空库存</el-button>
     </el-row>
@@ -61,7 +70,7 @@
           <el-input v-model="form.goodsId" autocomplete="off"></el-input>
         </el-form-item> -->
         <el-form-item label="商品名称" :label-width="formLabelWidth">
-          <el-select v-model="form.goodsName" placeholder="请选商品类型">
+          <el-select v-model="form.goodsName" placeholder="请选商品类型" :disabled="type !== 'add'">
             <el-option v-for="(item,index) in goodList" :key="index" 
             :label="item.title" :value="item.title"></el-option>
           </el-select>
@@ -89,6 +98,7 @@
         tableData: [],
         dialogFormVisible: false,
         shopid: '',
+        goodsName: '',
         form: {
           goodsId: '',
           goodsName: '',
@@ -103,13 +113,15 @@
         totalnum: 0,
         currentpage: 1,
         pagesize: 10,
-        goodList: []
-        
+        goodList: [],
       }
     },
     watch:{
       shopid(val){
         this.getTableListFS()
+      },
+      goodsName(val) {
+        this.getTableListFS({goodsName: val})
       }
     },
     created(){
@@ -120,6 +132,40 @@
       
     },
     methods: {
+      showInitGoods() {
+        this.$confirm('确认初始化商品？谨慎操作!', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+        }).then(() => {
+            this.initGoods()
+        }).catch(() => {
+            this.$message({
+                type: 'info',
+                message: '已取消'
+            });          
+        });
+      },
+      initGoods() {
+          let url = apis.initGoods
+          axios.post(url, {storeId: this.shopid}).then(res =>{
+            if (res.data.code === 100000) {
+              this.dialogVisible = false
+              this.$message({
+                type: 'success',
+                message: '初始化成功'
+              })
+              this.getTableListFS()
+            } else {
+              this.$message({
+                type: 'warn',
+                message: res.data.msg
+              })
+            }
+          }).catch(err =>{
+            console.log(err)
+          })
+      },
       getGoodsListFS(){
         let pram = {
             "pageSize":1000,"pageNum":1
@@ -162,7 +208,7 @@
       clear(){
         let url = `${apis.clearStorage}/${this.shopid}`
         axios.get(url).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "初始化成功"
@@ -183,7 +229,7 @@
       init(){
         let url = `${apis.initStorage}/${this.shopid}`
         axios.get(url).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "初始化成功"
@@ -245,7 +291,7 @@
           let url = apis.addStorage
           
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "添加成功"
@@ -275,7 +321,7 @@
           }
           let url = apis.updateStorage
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "修改成功"
@@ -295,27 +341,30 @@
         
       },
       getShopListFS(){
-        let url = `${apis.getShopListFS}/-1`
-        let ownShop = this.$store.state.base.userinfo.storeIds.split(',')
-        axios.get(url).then(res =>{
-            let list = res.data.data
-            for(let i=0;i<list.length;i++){
-              let obj = list[i]
-              for(let j=0;j<ownShop.length;j++){
-                if(ownShop[j]==obj.id){
-                  this.options.push(obj)
-                }
-              }
-            }
-            this.shopid = this.options[0].id
+        const storeUrl = apis.getStoreByUser;
+        axios.get(storeUrl).then(res => {
+          if (res.data && res.data.code === 100000) {
+            this.options = res.data.data;
+            this.shopid = res.data.data[0].id;
             this.getTableListFS()
-        }).catch(err =>{
-          console.log(err)
-        })
+          }
+        });
       },
-      getTableListFS(){
-          let url = `${apis.getShopStorageListFS}/${this.shopid}`
-          axios.get(url).then(res =>{
+      getTableListFS(options={}){
+          let url = apis.getShopStorageListFSNew
+          let pram = {
+            pageSize: this.pagesize,
+            pageNum: this.currentpage,
+            storeId: this.shopid,
+          };
+          axios({
+            method: "post",
+            url,
+            data: {
+              ...pram,
+              ...options
+            }
+          }).then(res =>{
               this.tableData = this.getListData(res.data.data)
               this.totalnum = res.data.total
           }).catch(err =>{
@@ -357,7 +406,7 @@
       toDelete(val){
         let url = apis.deleteStorage+"/"+val.id
         axios.get(url).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "删除成功"

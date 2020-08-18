@@ -25,7 +25,10 @@
         label="昵称"
         width="180">
       </el-table-column>
-
+      <el-table-column
+        prop="storeName"
+        label="店铺名称">
+      </el-table-column>
       <el-table-column
         prop="userBindPhoneNum"
         label="电话号码">
@@ -116,7 +119,7 @@
           }
           let url = apis.bandUserToCompany
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "绑定成功"
@@ -205,7 +208,7 @@
       toDeleteGoods(val){
         let url = apis.deleteGoods+"/"+val.id
         axios.get(url).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "删除成功"

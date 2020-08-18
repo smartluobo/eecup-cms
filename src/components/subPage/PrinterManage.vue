@@ -115,7 +115,7 @@
           }
           let url = apis.addPrinter
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "添加成功"
@@ -141,7 +141,7 @@
           }
           let url = apis.updatePrinter
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "修改成功"
@@ -197,7 +197,7 @@
       toDeleteRow(val){
         let url = apis.deletePrinter+"/"+val.id
         axios.get(url).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "删除成功"

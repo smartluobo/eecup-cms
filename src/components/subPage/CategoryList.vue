@@ -2,6 +2,13 @@
   <div class="channels_box">
     <el-row style="width: 100%;padding: 10px 10px 10px 20px;background-color: #ececec">
       <el-button type="primary"  @click="toAdd()" icon="el-icon-edit-outline">新增分类</el-button>
+      <span style="margin-left:20px;">所属店铺:</span>
+      <el-select v-model="storeId" placeholder="请选所属店铺" style="margin-left:10px;margin-bottom: 10px;">
+            <!-- <el-option label="所有" value=-1 ></el-option> -->
+            <el-option v-for="(item,index) in shopList" :key="index" 
+            :label="item.storeName" :value="item.id"></el-option>
+      </el-select>
+      <el-button @click=toSearch() style="margin-left:20px;" icon="el-icon-search" circle></el-button>
     </el-row>
     <el-table
       :data="tableData"
@@ -50,18 +57,46 @@
     data() {
       return {
         tableData: [],
+        shopList: [],
+        storeId: '',
       }
     },
     created(){
       
     },
     mounted(){
-      this.getTableListFS()
+      this.getShopListFS()
     },
     methods: {
+      toSearch(){
+        this.getTableListFS()
+      },
+      getShopListFS(){
+        const storeUrl = apis.getStoreByUser;
+        // storeId
+        axios.get(storeUrl).then(res => {
+          if (res.data && res.data.code === 100000) {
+            this.shopList = res.data.data;
+            if (this.shopList && this.shopList.length) {
+              this.storeId = this.shopList[0].id;
+            }
+            this.getTableListFS()
+          }
+        });
+      },
       getTableListFS(){
           let url = apis.getCategoryListFS
-          axios.get(url).then(res =>{
+          let pram = {}
+          if(this.storeId!=''){
+            pram.storeId = this.storeId
+          }
+          axios({
+            method: 'get',
+            url,
+            params: {
+              ...pram,
+            }
+          }).then(res =>{
              console.log(res)
               this.tableData = this.getListData(res.data.data)
               this.totalnum = res.data.total

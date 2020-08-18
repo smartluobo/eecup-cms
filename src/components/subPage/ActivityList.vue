@@ -8,6 +8,18 @@
             <el-option v-for="(item,index) in options" :key="index" 
             :label="item.storeName" :value="item.storeName"></el-option>
       </el-select>
+      <span style="margin-left:10px;">活动类型:</span>
+      <el-select v-model="activityType" placeholder="请选择活动类型" default="-1">
+        <el-option label="全部" value=-1 ></el-option>
+        <el-option label="常规活动" value=1 ></el-option>
+        <el-option label="节假日活动" value=2 ></el-option>
+        <el-option label="全场折扣" value=3 ></el-option>
+        <el-option label="买一送一" value=4 ></el-option>
+        <el-option label="第二杯半价" value=5 ></el-option>
+        <el-option label="门店活动" value=6 ></el-option>
+        <el-option label="特价活动" value=7 ></el-option>
+      </el-select>
+      
     </el-row>
     <el-table
       :data="tableData"
@@ -64,6 +76,16 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      class="pagination"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="currentpage"
+      :page-sizes="[10, 20, 30, 40]"
+      :page-size="pagesize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="totalnum">
+    </el-pagination>
     <el-dialog :title="type=='add'?'新增活动':'修改活动'" :visible.sync="dialogFormVisible">
       <el-form :model="form">
         <el-form-item label="活动类型" :label-width="formLabelWidth">
@@ -74,6 +96,7 @@
             <el-option label="买一送一" value=4 ></el-option>
             <el-option label="第二杯半价" value=5 ></el-option>
             <el-option label="门店活动" value=6 ></el-option>
+            <el-option label="特价活动" value=7 ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="活动名称" :label-width="formLabelWidth">
@@ -206,7 +229,8 @@
         selectedcoupon: '',
         selectedCouponList: [],
         selectedActivity: {},
-        selectedStore: ''
+        selectedStore: '',
+        activityType: '-1',
       }
     },
     created(){
@@ -218,6 +242,9 @@
     watch:{
       selectedStore(val){
         this.getTableListFS()
+      },
+      activityType(val) {
+        this.getTableListFS({activityType: val && Number(val)});
       }
     },
     methods: {
@@ -236,7 +263,7 @@
         if(val.id!=null){
           let url = `${apis.deleteActivityCoupons}/${activityId}/${val.id}`
           axios.get(url).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "删除成功"
@@ -278,7 +305,7 @@
         
         let url = apis.addActivityCoupons
         axios.post(url,parm).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "添加成功"
@@ -310,19 +337,6 @@
         let url = apis.getCouponFS
         axios.get(url).then(res =>{
             this.couponList = res.data.data
-            // let ownShop = this.$store.state.base.userinfo.storeIds.split(',')
-     
-            // let list = res.data.data
-            // for(let i=0;i<list.length;i++){
-            //   let obj = list[i]
-            //   console.log(obj)
-            // console.log(ownShop)
-            //   for(let j=0;j<ownShop.length;j++){
-            //     if(ownShop[j]==obj.storeId){
-            //       this.couponList.push(obj)
-            //     }
-            //   }
-            // }
         }).catch(err =>{
           console.log(err)
         })
@@ -362,7 +376,7 @@
           }
           let url = apis.addActivity
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "添加成功"
@@ -396,7 +410,7 @@
           }
           let url = apis.updateActivity
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "修改成功"
@@ -438,54 +452,52 @@
           str = 5
         }else if(val=="门店活动"){
           str = 6
+        }else if(val=="特价活动"){
+          str = 7
         }
         return str
       },
       getShopListFS(){
-        let url = `${apis.getShopListFS}/-1`
-        let ownShop = this.$store.state.base.userinfo.storeIds.split(',')
-        axios.get(url).then(res =>{
-            //this.options = res.data.data
-            let list = res.data.data
-            for(let i=0;i<list.length;i++){
-              let obj = list[i]
-              for(let j=0;j<ownShop.length;j++){
-                if(ownShop[j]==obj.id){
-                  this.options.push(obj)
-                }
-              }
-            }
+        const storeUrl = apis.getStoreByUser;
+        axios.get(storeUrl).then(res => {
+          if (res.data && res.data.code === 100000) {
+            this.options = res.data.data;
+            this.shopid = res.data.data[0].id;
             this.getTableListFS()
-        }).catch(err =>{
-          console.log(err)
-        })
-      },
-      getStoreId(){
-        let id = -1
-        for(let i=0;i<this.options.length;i++){
-          if(this.options[i].storeName==this.selectedStore){
-            id =  this.options[i].id
           }
-        }
-        return id
+        });
       },
-      getTableListFS(){
-          let stordId = this.getStoreId()
-          let url =   apis.getActivityListFS+"/"+stordId
-          axios.get(url).then(res =>{
-              this.tableData = this.getListData(res.data.data)
-              this.totalnum = res.data.total
+      getTableListFS(options={}){
+          let url = apis.getActivityListFS
+          let pram = {
+            pageSize: this.pagesize,
+            pageNum: this.currentpage,
+            storeId: this.shopid,
+            activityType: -1,
+          };
+          axios({
+            method: "post",
+            url,
+            data: {
+              ...pram,
+              ...options
+            }
+          }).then(res =>{
+              if (res && res.data.code === 100000) {
+                this.tableData = this.getListData(res.data.data)
+                this.totalnum = res.data.total
+              }
           }).catch(err =>{
             console.log(err)
           })
       },
       getListData(val){
           var list = []
-          let ownShop = this.$store.state.base.userinfo.storeIds.split(',')
+          let ownShop = this.options || [];
           for(var i=0;i<val.length;i++){
             let obj = val[i]
             for(let j=0;j<ownShop.length;j++){
-              if(ownShop[j]==obj.storeId){
+              if(ownShop[j].id==obj.storeId){
                 let activityType = val[i].activityType
                 if(activityType==1){
                   val[i].activityType = "常规活动"
@@ -499,13 +511,14 @@
                   val[i].activityType = "第二杯半价"
                 }else if(activityType==6){
                   val[i].activityType = "门店活动"
+                }else if(activityType==7){
+                  val[i].activityType = "特价活动"
                 }
                 let stroe = this.getStroeName(val[i].storeId)
                 val[i].storeId = stroe
                 list.push(obj)
               }
             }
-             
           }
           return list
       },
@@ -584,7 +597,7 @@
       toDelete(val){
         let url = apis.deleteActivity+"/"+val.id
         axios.get(url).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "删除成功"

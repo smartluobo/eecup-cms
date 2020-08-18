@@ -84,27 +84,16 @@
         this.getTableListFS()
       },
       getShopListFS(){
-        let url = `${apis.getShopListFS}/-1`
-        let ownShop = this.$store.state.base.userinfo.storeIds.split(',')
-        axios.get(url).then(res =>{
-            //this.options = res.data.data
-            let list = res.data.data
-            for(let i=0;i<list.length;i++){
-              let obj = list[i]
-              for(let j=0;j<ownShop.length;j++){
-                if(ownShop[j]==obj.id){
-                  this.options.push(obj)
-                }
-              }
-            }
-            this.storeId = this.options[0].id
+        const storeUrl = apis.getStoreByUser;
+        axios.get(storeUrl).then(res => {
+          if (res.data && res.data.code === 100000) {
+            this.options = res.data.data;
+            this.storeId = res.data.data[0].id;
             this.getTableListFS()
-        }).catch(err =>{
-          console.log(err)
-        })
+          }
+        });
       },
       
-    
       getTableListFS(){
           let pram = {}
           let startTime = this.time[0]

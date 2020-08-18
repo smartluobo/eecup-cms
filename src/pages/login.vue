@@ -9,7 +9,7 @@
       </div>
       <div class="login_form">
         <input v-model="userNmae" placeholder="用户名"  type="value" id="userNmae"/>
-        <input v-model="password" placeholder="密码" type="password" id="password"/>
+        <input v-model="password" placeholder="密码" type="password" id="password" @keyup.enter="loginFn"/>
         <!-- <div style="border-bottom:1px #dcdcdc solid;padding:5px;margin-bottom:20px;">
           <input v-model="phone" type="text" placeholder="手机号" style="border: none;outline: none;padding: 5px;display:inline-block;
           width:320px;"
@@ -49,6 +49,12 @@ export default {
           },
           checkCode: ''
       }
+    },
+    created() {
+      console.log('建立', window)
+      window.addEventListener('enter', () => {
+        this.loginFn();
+      })
     },
     methods: {
       jumpHome() {
@@ -97,6 +103,7 @@ export default {
         
       },
       loginFn () {
+        console.log('执行')
         let username = this.userNmae
         let password = this.password
         if (username === '') {
@@ -111,10 +118,20 @@ export default {
           });
         }
         
-        let pram = {"loginName":username,"password":password}
-		    let url = apis.baseUrl+'/tea/cms/login/login'
-        axios.post(url,pram).then( res =>{
-            if(res.data.code==200){
+        let params = {"username":username,"password":password}
+        const formData = new FormData();
+        Object.keys(params).forEach(key => {
+          formData.append(key, params[key]);
+        });
+        let url = apis.baseUrl+'tea/cms/system/login';
+        const config = {
+          headers: {
+            'content-type': 'application/x-www-form-urlencoded format'
+          }
+        }
+        axios.post(url, formData, config).then( res =>{
+          console.log('res', res)
+          if(res.data.code === 100006){
             this.$router.push({path: '/'})
           }else{
             this.$message({

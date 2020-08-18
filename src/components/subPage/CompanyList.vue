@@ -119,7 +119,7 @@
           }
           let url = apis.addCompany
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "添加成功"
@@ -155,7 +155,7 @@
           }
           let url = apis.updateGoods
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "修改成功"
@@ -242,7 +242,7 @@
       toDeleteCompany(val){
         let url = apis.toDeleteCompany+"/"+val.id
         axios.get(url).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "删除成功"

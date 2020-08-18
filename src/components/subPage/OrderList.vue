@@ -188,19 +188,29 @@
       input(val){
         this.getTableListFS()
       },
-      "$store.state.base.userinfo"(val){
-        let list = val.storeIds.split(',')
-        this.ownShop = list
-        this.getShopListFS()
-      }
+      // "$store.state.base.userinfo"(val){
+      //   let list = val.storeIds.split(',')
+      //   this.ownShop = list
+      //   this.getShopListFS()
+      // }
     },
     created(){
-      
+      this.initList();
     },
     mounted(){
       
     },
     methods: {
+      async initList() {
+        const shopApi = apis.getStoreByUser;
+        const shopRes = await axios.get(shopApi);
+        if (shopRes && shopRes.data && shopRes.data.code === 100000) {
+          this.ownShop = shopRes.data.data;
+          this.shopid = shopRes.data.data[0].id;
+          this.options = shopRes.data.data;
+          this.getShopListFS();
+        }
+      },
       getShopListFS(){
         let url = `${apis.getShopListFS}/-1`
         axios.get(url).then(res =>{
@@ -220,14 +230,32 @@
           console.log(err)
         })
       },
-      getTableListFS(){
-          let url = ''
-          if(this.input!=""){
-            url = `${apis.getOrderListFS}${this.shopid}/${this.status}/${this.pagesize}/${this.currentpage}/${this.input}`
-          }else{
-            url = `${apis.getOrderListFS}${this.shopid}/${this.status}/${this.pagesize}/${this.currentpage}/-1`
+      getTableListFS(options={}){
+          // let url = ''
+          // if(this.input!=""){
+          //   url = `${apis.getOrderListFS}${this.shopid}/${this.status}/${this.pagesize}/${this.currentpage}/${this.input}`
+          // }else{
+          //   url = `${apis.getOrderListFS}${this.shopid}/${this.status}/${this.pagesize}/${this.currentpage}/-1`
+          // }
+          let url = apis.getOrderListFS
+          let pram = {
+            pageSize: this.pagesize,
+            pageNum: this.currentpage,
+            storeId: this.shopid,
+            orderStatus: this.status,
+          };
+          if (this.input) {
+            pram.takeCode = this.input;
           }
-          axios.get(url).then(res =>{
+
+          axios({
+            method: "post",
+            url,
+            data: {
+              ...pram,
+              ...options
+            }
+          }).then(res =>{
               this.tableData = this.getListData(res.data.data)
               this.totalnum = res.data.total
           }).catch(err =>{

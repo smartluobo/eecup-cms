@@ -85,22 +85,22 @@
     },
     created(){
       this.getShopListFS()
-      this.getGoodsListFS()
     },
     mounted(){
-      
+      console.log('推荐管理1')
     },
     watch:{
       storeId(val){
         this.getTableListFS()
+        this.getGoodsListFS()
       }
     },
     methods: {
       getGoodsListFS(){
         let pram = {
-            "pageSize":1000,"pageNum":1
+            storeId: this.storeId
           }
-          let url = apis.getGoodListFS
+          let url = apis.getGoodsByStore
           axios.post(url,pram).then(res =>{
               this.goodsList = res.data.data
           }).catch(err =>{
@@ -123,7 +123,7 @@
           }
           let url = apis.addRecommendGoods
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "添加成功"
@@ -140,7 +140,6 @@
           }).catch(err =>{
             console.log(err)
           })
-        
       },
       
      
@@ -149,6 +148,7 @@
         axios.get(url).then(res =>{
             this.options = res.data.data
             this.storeId = this.options[0].id
+            this.getGoodsListFS()
             this.getTableListFS()
         }).catch(err =>{
           console.log(err)
@@ -187,7 +187,7 @@
       toDeleteRow(val){
         let url = apis.deleteRecommendGoods+"/"+val.id
         axios.get(url).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "删除成功"

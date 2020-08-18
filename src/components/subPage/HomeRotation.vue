@@ -2,6 +2,12 @@
   <div class="channels_box">
     <el-row style="width: 100%;padding: 10px 10px 10px 20px;background-color: #ececec">
       <el-button type="primary"  @click="toAdd()" icon="el-icon-edit-outline">新增轮播</el-button>
+      <span style="margin-left:20px;">所属店铺:</span>
+      <el-select v-model="storeId" placeholder="请选所属店铺" style="margin-left:10px;margin-bottom: 10px;">
+            <el-option label="所有" value=-1 v-if="userInfo.isAdmin == 1"></el-option>
+            <el-option v-for="(item,index) in options" :key="index" 
+            :label="item.storeName" :value="item.id"></el-option>
+      </el-select>
     </el-row>
     <el-table
       :data="tableData"
@@ -74,8 +80,10 @@
     name: 'OrderList',
     data() {
       return {
+        userInfo: {},
         tableData: [],
         options:[],
+        storeId: [],
         dialogFormVisible: false,
         form: {
           storeId: '',
@@ -87,11 +95,27 @@
       }
     },
     created(){
-      this.getShopListFS()
+      this.getShopListFS();
+      this.getCurrentUserInfo();
     },
     mounted(){
     },
+    watch: {
+      storeId: function(newVal, oldVal) {
+        if (newVal) {
+          this.getTableListFS({storeId: newVal})
+        }
+      }
+    },
     methods: {
+      getCurrentUserInfo() {
+        const url = apis.getCurrentUserInfo;
+        axios.get(url).then(res => {
+          if (res.data && res.data.code === 100000) {
+            this.userInfo = res.data.data;
+          }
+        });
+      },
       toAdd(){
         this.type = "add"
         this.dialogFormVisible = true
@@ -109,7 +133,7 @@
           }
           let url = apis.addHomeRotatio
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "添加成功"
@@ -135,7 +159,7 @@
           }
           let url = apis.updateHomeRotatio
           axios.post(url,parm).then(res =>{
-            if(res.data.code==200){
+            if(res.data.code==100000){
               this.$message({
                 type:'success',
                 message: "修改成功"
@@ -155,17 +179,41 @@
         
       },
       getShopListFS(){
-        let url = `${apis.getShopListFS}/-1`
-        axios.get(url).then(res =>{
-            this.options = res.data.data
-            this.getTableListFS()
-        }).catch(err =>{
-          console.log(err)
-        })
+        const storeUrl = apis.getStoreByUser;
+        axios.get(storeUrl).then(res => {
+          if (res.data && res.data.code === 100000) {
+            this.options = res.data.data;
+            if (this.options && this.options.length) {
+              console.log('this.options[0]', this.options[0])
+              this.storeId = this.options[0].id;
+              this.getTableListFS()
+            }
+          }
+        });
       },
-      getTableListFS(){
+      // getShopListFS(){
+      //   let url = `${apis.getShopListFS}/-1`
+      //   axios.get(url).then(res =>{
+      //       this.options = res.data.data
+      //       this.getTableListFS()
+      //   }).catch(err =>{
+      //     console.log(err)
+      //   })
+      // },
+      getTableListFS(option={}){
           let url = apis.getHomeRotationFS
-          axios.get(url).then(res =>{
+          let pram = {}
+          if(this.storeId != ''){
+            pram.storeId = this.storeId
+          }
+          axios({
+            method: 'get',
+            url,
+            params: {
+              ...pram,
+              ...option,  
+            }
+          }).then(res =>{
               this.tableData = this.getListData(res.data.data)
               this.totalnum = res.data.total
           }).catch(err =>{
@@ -213,7 +261,7 @@
       toDeleteRow(val){
         let url = apis.deleteHomeRotation+"/"+val.id
         axios.get(url).then(res =>{
-          if(res.data.code==200){
+          if(res.data.code==100000){
             this.$message({
               type:'success',
               message: "删除成功"

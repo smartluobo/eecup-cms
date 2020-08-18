@@ -1,7 +1,7 @@
 <template>
   <div class="channels_box">
     <el-row style="width: 100%;padding: 10px 10px 10px 20px;background-color: #ececec">
-      <el-button type="primary"  @click="toAdd()" icon="el-icon-edit-outline">新增店铺</el-button>
+      <!-- <el-button type="primary"  @click="toAdd()" icon="el-icon-edit-outline">新增店铺</el-button> -->
     </el-row>
     <el-table
       :data="tableData"
@@ -25,17 +25,35 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-          <el-button
+            @click="handleCopy(scope.$index, scope.row)">复制</el-button>
+          <!-- <el-button
+            size="mini"
+            @click="handleEdit(scope.$index, scope.row)">编辑</el-button> -->
+          <!-- <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            @click="handleDelete(scope.$index, scope.row)">删除</el-button> -->
         </template>
       </el-table-column>
-      
-     
     </el-table>
-    
+    <el-dialog title="选择店铺配置" :visible.sync="dialogFormVisible" width="50%">
+        <el-form :model="form" ref="form">
+          <el-form-item label="所属分店" :label-width="formLabelWidth" prop="storeIds">
+            <el-select v-model="form.targetStoreId" placeholder="请选择" style="width:100%">
+              <el-option
+                v-for="item in tableData"
+                :key="item.id"
+                :label="item.storeName"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="toSave()">确 定</el-button>
+        </div>
+      </el-dialog>
   </div>
 
 </template>
@@ -52,7 +70,14 @@
         totalnum: 0,
         currentpage: 1,
         pagesize: 10,
-        month:''
+        month:'',
+        form: {
+          targetStoreId: ''
+        },
+        dialogFormVisible: false,
+        dialogVisible: false,
+        formLabelWidth: '120px',
+        currentStoreId: ''
       }
     },
     created(){
@@ -62,6 +87,32 @@
       this.getTableListFS()
     },
     methods: {
+      handleCopy(index, record) {
+        this.dialogFormVisible = true
+        this.currentStoreId = record.id
+      },
+      toSave() {
+        const url = apis.copyShopRecord
+        const params = {
+          targetStoreId: this.form.targetStoreId,
+          currentStoreId: this.currentStoreId
+        }
+        axios.post(url, params).then(res => {
+          if (res.data.code === 100000) {
+            this.getTableListFS()
+            this.dialogFormVisible = false
+            this.$message({
+              type: "success",
+              message: "复制成功"
+            });
+          } else {
+            this.$message({
+              type: "info",
+              message: res.data.msg
+            });
+          }
+        })
+      },
       getTableListFS(){
           let url = `${apis.getShopListFS}/-1`
           axios.get(url).then(res =>{
